@@ -9,9 +9,11 @@ uploaded_file = st.file_uploader("Upload file (CSV)", type=['csv'])
 model_option = st.sidebar.selectbox("Select Machine Learning Model Training:", ["", "Decision Tree", "Logistic Regression", "Knn", "Support Vector Machine"])
 
 if uploaded_file is not None:
+    st.write("Upload Success:")
     with st.expander('Data'):
-        st.write('Raw data')
+        st.write('Review data')
         data = pd.read_csv(uploaded_file)
+        data
         
     with st.expander('Top Product'):
         TopProducts= data.pivot_table(
