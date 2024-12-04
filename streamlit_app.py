@@ -11,9 +11,11 @@ st.sidebar.markdown('# Predict status')
 uploaded_file = st.file_uploader("Upload file (CSV)", type=['csv'])
 
 if uploaded_file is not None:
+    st.write("Upload Success:")
     with st.expander('Data'):
         st.write('Review data')
         data = pd.read_csv(uploaded_file)
+        data
         
     with st.expander('Top Product'):
         st.write('Top product by no of quantity')
