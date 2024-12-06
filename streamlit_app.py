@@ -3,13 +3,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import datetime as dt
 
 st.title('Prediction App')
 st.info('Product recommendation')
 st.sidebar.markdown('# Predict status')
 
 uploaded_file = st.file_uploader("Upload file (CSV)", type=['csv'])
-model_option = st.sidebar.selectbox("Select Machine Learning Model Training:", ["", "Decision Tree", "Logistic Regression", "Knn", "Support Vector Machine"])
 
 if uploaded_file is not None:
     with st.expander('Data'):
@@ -58,22 +58,48 @@ if uploaded_file is not None:
         # Create the bar plot
         a = sns.barplot(x=monthly_counts_year.index.astype(str), y=monthly_counts_year.values, palette='viridis', ax=ax)
         # Customize the plot
-        ax.set_title(f'Monthly Transactions in {year:.0f}', fontsize=16)
+        ax.set_title(f'Monthly Transactions in {year}', fontsize=16)
         ax.set_xlabel('Month', fontsize=14)
         ax.set_ylabel('Number of Transactions', fontsize=14)
         ax.tick_params(axis='x', rotation=45)
         ax.grid(axis='y', linestyle='--', alpha=0.7)
 
         st.pyplot(fig)
-
         
+    with st.expander('Customer Segmentation'):
+        st.write('Cứu tui')
+        data['InvoiceDate'] = pd.to_datetime(data['InvoiceDate'])
+        data = data[~data["Invoice"].str.contains("C", na=False)]
+        today_date = dt.datetime(2011, 12, 11)
         
+        rfm = data.groupby('CustomerID').agg({'InvoiceDate': lambda InvoiceDate: (today_date - InvoiceDate.max()).days,
+                                     'Invoice': lambda Invoice: Invoice.nunique(),
+                                     'Total': lambda Total: Total.sum()})
+        rfm.columns = ['recency', 'frequency', 'monetary']
+        rfm = rfm[rfm["monetary"] > 0]
         
-    with st.expander('Recommend product'):
-        # split data
-        st.write('cuwus tui')
-        
-        
+        rfm["recency_score"] = pd.qcut(rfm['recency'], 5, labels=[5, 4, 3, 2, 1])
+        rfm["frequency_score"] = pd.qcut(rfm['frequency'].rank(method="first"), 5, labels=[1, 2, 3, 4, 5])
+        rfm["RFM_SCORE"] = (rfm['recency_score'].astype(str) + rfm['frequency_score'].astype(str))
+        st.write('The most frequent and most recent customers')
+        rfm[rfm["RFM_SCORE"] == "55"]
+        st.write('The least frequent and least recent customers')
+        rfm[rfm["RFM_SCORE"] == "11"]
+        st.write('Customer Segmentation Using RFM Analysis:')
+        seg_map = {
+            r'[1-2][1-2]': 'hibernating',
+            r'[1-2][3-4]': 'at_risk',
+            r'[1-2]5': 'cant_loose',
+            r'3[1-2]': 'about_to_sleep',
+            r'33': 'need_attention',
+            r'[3-4][4-5]': 'loyal_customers',
+            r'41': 'promising',
+            r'51': 'new_customers',
+            r'[4-5][2-3]': 'potential_loyalists',
+            r'5[4-5]': 'champions'
+            }
+        rfm['segment'] = rfm['RFM_SCORE'].replace(seg_map, regex=True) 
+        rfm[['segment', 'recency', 'frequency', 'monetary']].groupby('segment').agg(['mean', 'count'])
         
 else:
     st.write('Waiting on file upload...') 
