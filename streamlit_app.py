@@ -5,9 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import datetime as dt
 
-st.title('Prediction App')
-st.info('Product recommendation')
-st.sidebar.markdown('# Predict status')
+st.title('abc App')
+st.info('Sale analysis')
 
 uploaded_file = st.file_uploader("Upload file (CSV)", type=['csv'])
 
@@ -16,8 +15,6 @@ if uploaded_file is not None:
         st.write('Review data')
         data = pd.read_csv(uploaded_file)
         data
-        
-        
         
     with st.expander('Top Product'):
         st.write('Top product by no of quantity:')
@@ -39,7 +36,7 @@ if uploaded_file is not None:
         
     with st.expander('Transaction'):
         st.write('Monthly transactions:')
-        year = st.number_input('Year:', value=None, placeholder="Type a number...", format='%0f')
+        year = int(st.number_input('Year:', placeholder="Type the year...", format='%.0f'))
         
         # Convert "InvoiceDate" to datetime format if not already done
         data['InvoiceDate'] = pd.to_datetime(data['InvoiceDate'])
@@ -66,40 +63,6 @@ if uploaded_file is not None:
 
         st.pyplot(fig)
         
-    with st.expander('Customer Segmentation'):
-        st.write('Cứu tui')
-        data['InvoiceDate'] = pd.to_datetime(data['InvoiceDate'])
-        data = data[~data["Invoice"].str.contains("C", na=False)]
-        today_date = dt.datetime(2011, 12, 11)
-        
-        rfm = data.groupby('CustomerID').agg({'InvoiceDate': lambda InvoiceDate: (today_date - InvoiceDate.max()).days,
-                                     'Invoice': lambda Invoice: Invoice.nunique(),
-                                     'Total': lambda Total: Total.sum()})
-        rfm.columns = ['recency', 'frequency', 'monetary']
-        rfm = rfm[rfm["monetary"] > 0]
-        
-        rfm["recency_score"] = pd.qcut(rfm['recency'], 5, labels=[5, 4, 3, 2, 1])
-        rfm["frequency_score"] = pd.qcut(rfm['frequency'].rank(method="first"), 5, labels=[1, 2, 3, 4, 5])
-        rfm["RFM_SCORE"] = (rfm['recency_score'].astype(str) + rfm['frequency_score'].astype(str))
-        st.write('The most frequent and most recent customers')
-        rfm[rfm["RFM_SCORE"] == "55"]
-        st.write('The least frequent and least recent customers')
-        rfm[rfm["RFM_SCORE"] == "11"]
-        st.write('Customer Segmentation Using RFM Analysis:')
-        seg_map = {
-            r'[1-2][1-2]': 'hibernating',
-            r'[1-2][3-4]': 'at_risk',
-            r'[1-2]5': 'cant_loose',
-            r'3[1-2]': 'about_to_sleep',
-            r'33': 'need_attention',
-            r'[3-4][4-5]': 'loyal_customers',
-            r'41': 'promising',
-            r'51': 'new_customers',
-            r'[4-5][2-3]': 'potential_loyalists',
-            r'5[4-5]': 'champions'
-            }
-        rfm['segment'] = rfm['RFM_SCORE'].replace(seg_map, regex=True) 
-        rfm[['segment', 'recency', 'frequency', 'monetary']].groupby('segment').agg(['mean', 'count'])
         
 else:
     st.write('Waiting on file upload...') 
