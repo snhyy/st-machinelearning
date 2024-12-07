@@ -1,3 +1,7 @@
-# 🤖 Prediction App With Machine Learning Model
+**🤖 Prediction App With Machine Learning Model**
 
-Description of the app ...
+
+
+run code: streamlit run streamlit_app.py
+*Note:*
+*In file streamlit_app.py, line 76 change the path to the provided model file.*
