@@ -1,3 +1,4 @@
+import all of this to python (🐍 3.10.x):
 streamlit
 numpy
 pandas
@@ -6,3 +7,5 @@ lifetimes
 datetime
 seaborn
 matplotlib
+gensim
+tqdm
