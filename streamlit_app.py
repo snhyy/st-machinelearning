@@ -5,6 +5,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import datetime as dt
 
+import random
+from tqdm import tqdm
+import plotly.express as px
+from gensim.models import Word2Vec
+import joblib
+from joblib import load
+
+
+
 st.title('abc App')
 st.info('Sale analysis')
 
@@ -62,7 +71,42 @@ if uploaded_file is not None:
         ax.grid(axis='y', linestyle='--', alpha=0.7)
 
         st.pyplot(fig)
+    
+    with st.expander('Product Recommendation:'):
+        model = Word2Vec.load('../my_word2vec_model')
+        
+        products = data[["StockCode", "Description"]]
+        products.drop_duplicates(inplace=True, subset='StockCode', keep="last")
+        products_dict = products.groupby('StockCode')['Description'].apply(list).to_dict()
+        def similar_products(v, n = 5):
+            # extract most similar products
+            ms = model.wv.most_similar([v], topn= n+1)[1:]
+            # extract name and similarity score
+            new_ms = []
+            for j in ms:
+                pair = (products_dict[j[0]][0], j[1])
+                new_ms.append(pair)
+            return new_ms  
+        products_code = st.text_input('Product Recommended:', placeholder="Type the stockcode...")   
+        if products_code is not None: 
+            col1, col2 = st.columns(2) 
+            with col1:
+                try:
+                    product_description = products_dict[products_code]
+                    st.write('**Products Description**')
+                    st.write(product_description)
+                except KeyError:
+                    st.error(f"Product code '{products_code}' not found in dictionary.")
+            with col2:
+                try:
+                    similar_items = similar_products(model.wv[products_code])
+                    st.write('**Similar Products**')
+                    st.write(similar_items)
+                except KeyError:
+                    st.error(f"Product code '{products_code}' not found in similar products.")
+        else:
+            st.write('Waiting for stockcode...') 
         
         
 else:
-    st.write('Waiting on file upload...') 
+    st.write('Waiting for file upload...') 
