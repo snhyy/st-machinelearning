@@ -8,4 +8,4 @@ run code: streamlit run streamlit_app.py
 
 *Read the **requirements.txt** file to make sure you have all the necessary libraries*
 
-*In file **streamlit_app.py**, line 76 change the path to the provided model file.*
+*In file **streamlit_app.py**, line 76 change the path to the provided model file (**my_word2vec_model**).*
